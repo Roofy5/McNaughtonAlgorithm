@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace McNaughtonAlgorithm.Model
 {
-    class Job
+    public class Job
     {
         public int Number { get; set; }
         public int Time { get; set; }

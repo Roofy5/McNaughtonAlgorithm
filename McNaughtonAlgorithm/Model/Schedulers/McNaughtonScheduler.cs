@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace McNaughtonAlgorithm.Model.Schedulers
 {
-    class McNaughtonScheduler
+    class McNaughtonScheduler : IScheduler
     {
         private IList<Job> _jobs;
         private IList<Machine> _machines;
@@ -31,15 +31,16 @@ namespace McNaughtonAlgorithm.Model.Schedulers
             foreach (var machine in _machines)
             {
                 int i = 0;
-                while (_jobs.Count > 0)
+                while (_jobs.Count > 0 /*&& i < _jobs.Count*/)
                 {
-                    Job job = _jobs[i];
+                    //Job job = _jobs[i];
+                    Job job = _jobs[0];
                     int machineUssage = machine.CurrentMachineTimeUsage();
 
                     if (machineUssage == cMax)
                         break;
 
-                    if ((machineUssage + job.Time) >= cMax)
+                    if ((machineUssage + job.Time) > cMax)
                     {
                         int splitTime = cMax - machineUssage;
                         Job part1 = new Job()
@@ -53,13 +54,20 @@ namespace McNaughtonAlgorithm.Model.Schedulers
                             Time = job.Time - splitTime
                         };
                         machine.AddJobToMachine(part1);
-                        job = part2;
-                        break;
+                        job.Number = part2.Number;
+                        job.Time = part2.Time;
+                        continue;
                     }
 
                     machine.AddJobToMachine(job);
-                    _jobs.RemoveAt(i++);
+                    _jobs.RemoveAt(0);
+                    //_jobs.RemoveAt(i++);
                 }
+
+                int restUssage = machine.CurrentMachineTimeUsage();
+                if (restUssage == cMax)
+                    continue;
+                machine.AddJobToMachine(new Job(0, cMax - restUssage));
             }
 
             return _machines;

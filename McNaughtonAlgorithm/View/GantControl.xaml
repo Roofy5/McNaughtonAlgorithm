@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="McNaughtonAlgorithm.View.GantControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:McNaughtonAlgorithm.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+        <Button x:Name="przycisk" Width="100" HorizontalAlignment="Left" Content="Draw" Click="przycisk_Click"/>
+        
+        <WrapPanel>
+            <Slider x:Name="rectWidth" 
+                    Width="100" HorizontalAlignment="Left" 
+                    Minimum="10" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True"
+                    ValueChanged="ValueChanged"/>
+            <TextBlock FontSize="10" Text="{Binding ElementName=rectWidth, Path=Value}" />
+        </WrapPanel>
+        <WrapPanel>
+            <Slider x:Name="rectHeight" 
+                    Width="100" HorizontalAlignment="Left" 
+                    Minimum="10" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True"
+                    ValueChanged="ValueChanged"/>
+            <TextBlock FontSize="10" Text="{Binding ElementName=rectHeight, Path=Value}" />
+        </WrapPanel>
+
+        <Canvas x:Name="canvas"/>
+
+    </StackPanel>
+</UserControl>

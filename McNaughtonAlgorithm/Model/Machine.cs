@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace McNaughtonAlgorithm.Model
 {
-    class Machine
+    public class Machine
     {
         public IList<Job> Jobs { get; private set; }
         public IList<int> Chunks { get; private set; }
