@@ -30,10 +30,8 @@ namespace McNaughtonAlgorithm.Model.Schedulers
 
             foreach (var machine in _machines)
             {
-                int i = 0;
-                while (_jobs.Count > 0 /*&& i < _jobs.Count*/)
+                while (_jobs.Count > 0)
                 {
-                    //Job job = _jobs[i];
                     Job job = _jobs[0];
                     int machineUssage = machine.CurrentMachineTimeUsage();
 
@@ -61,7 +59,6 @@ namespace McNaughtonAlgorithm.Model.Schedulers
 
                     machine.AddJobToMachine(job);
                     _jobs.RemoveAt(0);
-                    //_jobs.RemoveAt(i++);
                 }
 
                 int restUssage = machine.CurrentMachineTimeUsage();
@@ -78,7 +75,8 @@ namespace McNaughtonAlgorithm.Model.Schedulers
             var jobsAllTime = _jobs.Sum(j => j.Time);
             var longestJobTime = _jobs.Max(j => j.Time);
 
-            var sum = jobsAllTime / _machines.Count;
+            //var sum = jobsAllTime / _machines.Count;
+            var sum = (int)((double)jobsAllTime / (double)_machines.Count + 0.999);
 
             return sum > longestJobTime ? sum : longestJobTime;
         }

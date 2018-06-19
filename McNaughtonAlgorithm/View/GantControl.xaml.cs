@@ -1,17 +1,13 @@
 ﻿using McNaughtonAlgorithm.Model;
+using McNaughtonAlgorithm.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace McNaughtonAlgorithm.View
@@ -26,8 +22,9 @@ namespace McNaughtonAlgorithm.View
         private int _startX;
         private int _startY;
         private Random _random;
-        private IList<Machine> _machines;
         private IDictionary<int, Color> _colors;
+        private IList<Color> _standardColors;
+        private int _usedColor;
 
         public IList<Machine> Machines
         {
@@ -41,25 +38,37 @@ namespace McNaughtonAlgorithm.View
 
         public GantControl()
         {
-            _rectangleHeight = 25;
-            _rectangleWidth = 95;
+            _rectangleHeight = 50;
+            _rectangleWidth = 50;
             _startX = 100;
             _startY = 50;
             _random = new Random();
+            _usedColor = 0;
+            PrepareStandardColors();
 
             InitializeComponent();
             canvas.DataContext = this;
-            //DrawGant();
-            //DrawRectangle(GetRectangle(3, Colors.Red), 0, 0);
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            ((MainViewModel)this.DataContext).DrawImage += GantControl_DrawImage;
+        }
+
+        private void GantControl_DrawImage(object sender, EventArgs e)
+        {
+            DrawGant(true);
+            this.btnSaveImage.IsEnabled = true;
         }
 
         private void DrawGant(bool randomColors)
         {
             this.canvas.Children.Clear();
+            _usedColor = 0;
             int x = _startX;
             int y = _startY;
             if(randomColors)
-                PrepareColors();
+                PrepareColors(true);
 
             for (int m = 0; m < Machines.Count; m++)
             {
@@ -80,7 +89,7 @@ namespace McNaughtonAlgorithm.View
             AddTimeLine();
         }
 
-        private void PrepareColors()
+        private void PrepareColors(bool useStandardColors)
         {
             _colors = new Dictionary<int, Color>();
             _colors.Add(new KeyValuePair<int, Color>(0, Colors.Transparent));
@@ -89,9 +98,37 @@ namespace McNaughtonAlgorithm.View
                 foreach (var chunk in machine.Chunks)
                 {
                     if (!_colors.ContainsKey(chunk))
-                        _colors.Add(new KeyValuePair<int, Color>(chunk, RandomColor()));
+                    {
+                        if (useStandardColors && _usedColor < _standardColors.Count)
+                            _colors.Add(new KeyValuePair<int, Color>(chunk, _standardColors[_usedColor++]));
+                        else
+                            _colors.Add(new KeyValuePair<int, Color>(chunk, RandomColor()));
+                    }
                 }
             }
+        }
+
+        private void PrepareStandardColors()
+        {
+            _standardColors = new List<Color>()
+            {
+                Color.FromRgb(255,0,0),
+                Color.FromRgb(0,0,255),
+                Color.FromRgb(255,255,0),
+                Color.FromRgb(0,255,255),
+                Color.FromRgb(0,255,0),
+                Color.FromRgb(128,0,255),
+                Color.FromRgb(255,128,0),
+                Color.FromRgb(255,0,255),
+                Color.FromRgb(128,128,128),
+                Color.FromRgb(255,0,128),
+                Color.FromRgb(128,0,0),
+                Color.FromRgb(0,128,0),
+                Color.FromRgb(0,0,128),
+                Color.FromRgb(128,0,128),
+                Color.FromRgb(128,128,0),
+                Color.FromRgb(0,128,128)
+            };
         }
 
         private Color RandomColor()
@@ -219,6 +256,46 @@ namespace McNaughtonAlgorithm.View
             }
             catch (Exception)
             { }
+        }
+
+        private void CreateSaveBitmap(Canvas canvas, string filename)
+        {
+            RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
+             (int)canvas.Width, (int)canvas.Height,
+             96d, 96d, PixelFormats.Pbgra32);
+            // needed otherwise the image output is black
+            /*canvas.Measure(new Size((int)canvas.Width, (int)canvas.Height));
+            canvas.Arrange(new Rect(new Size((int)canvas.Width, (int)canvas.Height)));*/
+
+            renderBitmap.Render(canvas);
+
+            //JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+
+            using (FileStream file = File.Create(filename))
+            {
+                encoder.Save(file);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog dialog = new Microsoft.Win32.SaveFileDialog();
+            dialog.Filter = "PNG files (*.png)|*.png";
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    CreateSaveBitmap(this.canvas, dialog.FileName);
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show("Image cannot be saved here. Try again!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                MessageBox.Show("Image saved!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
     }
 }

@@ -7,12 +7,20 @@
         xmlns:local="clr-namespace:McNaughtonAlgorithm"
         xmlns:view="clr-namespace:McNaughtonAlgorithm.View"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="800">
+        Title="McNaughton Algorithm" Height="800" Width="800">
 
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
-    
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File" FontSize="20" >
+                <MenuItem Header="_Load data" FontSize="20" Command="{Binding LoadDataCommand}" />
+                <MenuItem Header="_Save data" FontSize="20" Command="{Binding SaveDataCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_Info" FontSize="20" Command="{Binding InfoCommand}"/>
+        </Menu>
     <Grid>
         <!--<Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -46,45 +54,85 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Ilość maszyn: " />
-                    <TextBox Grid.Row="1" Width="180" HorizontalAlignment="Left" Text="{Binding NumberOfMachines}" />
+                    <TextBlock Grid.Row="0" Text="Machines: " />
+                    <TextBox Grid.Row="1" Width="180" HorizontalAlignment="Left" Text="{Binding NumberOfMachines, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <TextBlock Grid.Row="2" Margin="0,5,0,2" Text="Zadania: " />
+                    <TextBlock Grid.Row="2" Margin="0,5,0,2" Text="Jobs: " />
 
                     <ListView Grid.Row="3"
+                            x:Name="JobsList"
                             HorizontalAlignment="Left" 
-                            ScrollViewer.VerticalScrollBarVisibility="Visible"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto"
                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                             ItemsSource="{Binding Jobs}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="#" Width="50" DisplayMemberBinding="{Binding Number}"/>
-                                    <GridViewColumn Header="Czas" Width="Auto">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBox Width="140" Text="{Binding Time}" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="False">
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                        <Setter Property="Background" Value="DimGray" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Foreground" Value="Black" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="#" Width="50" DisplayMemberBinding="{Binding Number}"/>
+                                <GridViewColumn Header="Time" Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox Width="140" Text="{Binding Time}" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="" Width="Auto">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Width="20" Content="X" />
+                                            <Button Width="20" Content="X" 
+                                                    Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.DeleteJobCommand}" 
+                                                    CommandParameter="{Binding ElementName=JobsList, Path=SelectedItem}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                             </GridView>
-                            </ListView.View>
-                        </ListView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Background" Value="AliceBlue" />
+                                <Setter Property="BorderBrush" Value="Black" />
+                                <Setter Property="BorderThickness" Value="1" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="IsSelected" Value="True" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Setter Property="Background" Value="LightGray" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
 
-                    <Button Grid.Row="5" Margin="0,5,0,2" HorizontalAlignment="Left" Content="Dodaj zadanie" />
-                    <Button Grid.Row="5" Margin="0,5,0,2" HorizontalAlignment="Right" Content="Szereguj" Command="{Binding ScheduleCommand}" />
+                    <Button Grid.Row="5" Margin="0,5,0,2" HorizontalAlignment="Left" Content="+ New job" Command="{Binding AddJobCommand}"/>
+                    <Button Grid.Row="5" Margin="0,5,0,2" HorizontalAlignment="Right" Content="Schedule" Command="{Binding ScheduleCommand}" IsEnabled="{Binding CanExecuteScheduler}" />
 
                 </Grid>
             </Border>
         </Grid>
 
-        <view:GantControl Grid.Column="1" Machines="{Binding Machines}"/>
+        <Border Grid.Column="1"
+                    Margin="5"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    CornerRadius="3"
+                    Padding="5"
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch">
+            <view:GantControl Grid.Column="1" Machines="{Binding Machines}"/>
+        </Border>
 
     </Grid>
+    </DockPanel>
 </Window>

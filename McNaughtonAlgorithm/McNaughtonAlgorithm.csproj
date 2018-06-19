@@ -8,11 +8,12 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>McNaughtonAlgorithm</RootNamespace>
     <AssemblyName>McNaughtonAlgorithm</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -68,6 +69,8 @@
     </Compile>
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Model\Job.cs" />
+    <Compile Include="Model\Loader\ILoader.cs" />
+    <Compile Include="Model\Loader\PlainTextLoader.cs" />
     <Compile Include="Model\Machine.cs" />
     <Compile Include="Model\Schedulers\IScheduler.cs" />
     <Compile Include="Model\Schedulers\McNaughtonScheduler.cs" />
